@@ -10,4 +10,4 @@
 # %WORLD%  - 世界名
 
 messages:
-  - "world,0,100,0|{\"text\":\"\u4f60\u597d\u554a %PLAYER%\", \"color\":\"gold\", \"bold\": true}"
+  - world,0,100,0|{"text":"你好啊%PLAYER%","color":"gold","bold":true}

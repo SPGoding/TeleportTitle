@@ -1,6 +1,6 @@
 name: TeleportTitle
 main: com.github.spgoding.teleporttitle.TeleportTitle
-version: 1.0
+version: 1.3
 author: SPGoding
 commands:
     telet:
