@@ -1,3 +1,38 @@
 name: TeleportTitle
 main: com.github.spgoding.teleporttitle.TeleportTitle
 version: 1.0
+author: SPGoding
+commands:
+    telet:
+        description: §bA Teleport Title provided command.
+        aliases: [teleporttitle]
+        usage: |
+            
+            §c使用 §6/help telet [子命令] §c获取更多信息
+            §6/telet add <标题Json文本> [x y z] [世界] §7- §b在指定位置添加指定的传送标题
+            §6/telet del [x y z] [世界] §7- §b删除指定位置上的传送标题
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+    telet add:
+        description: §bA Teleport Title provided command.
+        usage: |
+            
+            §6/telet add <标题Json文本> §7- §b在玩家所在位置添加指定的传送标题
+            §6/telet add <标题Json文本> [x y z] §7- §b在玩家所在世界中的[x y z]位置添加指定的传送标题
+            §6/telet add <标题Json文本> [x y z] [世界] §7- §b在[世界]中的[x y z]位置添加指定的传送标题
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+    telet del:
+        description: §bA Teleport Title provided command.
+        usage: |
+            
+            §6/telet del §7- §b删除玩家所在位置上的传送标题
+            §6/telet del [x y z] §7- §b删除玩家所在世界中的[x y z]位置上的传送标题
+            §6/telet del [x y z] [世界] §7- §b删除[世界]中的[x y z]位置上的传送标题
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+permissions: 
+    teleporttitle.command: 
+        default: op
+    teleporttitle.showtitle:
+        default: true
