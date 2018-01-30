@@ -1,6 +1,8 @@
 package com.github.spgoding.teleporttitle;
 
-import org.bukkit.Bukkit;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -10,6 +12,7 @@ import org.bukkit.entity.Player;
 
 public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private final TeleportTitle plugin;
+	private Hashtable<CommandSender, GoingToDel> goingToDels = new Hashtable<>();
 	
 	public TeleportTitleCommandExecutor(TeleportTitle plugin) {
 		this.plugin = plugin;
@@ -20,6 +23,7 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		Util.sendSepratedLine(sender);
 		if (label.equalsIgnoreCase("telet") || label.equalsIgnoreCase("teleporttitle")) {
 			// 是劳资的命令
 			if (args.length > 0) {
@@ -32,9 +36,30 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("list")) {
 					// 列title
 					return runList(sender, args);
+				} else if (args[0].equalsIgnoreCase("confirm")) {
+					// 确认删除
+					Enumeration<CommandSender> e = goingToDels.keys();
+				    while(e.hasMoreElements()) {
+				    	if (e.nextElement() == sender) {
+				    		// 这个是该sender要删的
+							if (System.currentTimeMillis() <= goingToDels.get(sender).getTime()) {
+								// 时间还Okay，可以删
+								delTitles(goingToDels.get(sender).getLocation(), sender);
+							} else {
+								sender.sendMessage("§c已经超过确认时间");
+							}
+							goingToDels.remove(sender);
+							Util.sendSepratedLine(sender);
+							return true;
+				    	}
+				    }
+					sender.sendMessage("§c还未使用过 §6/telet del §c命令");
+					Util.sendSepratedLine(sender);
+					return true;
 				}
 			}
 		}
+		
 		return false;	
 	}
 
@@ -51,9 +76,10 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 			if (sender instanceof Player) {
 				addTitle(args[1], (Player) sender);
 			} else {
-				plugin.getLogger().info("§c只有玩家可以使用不带具体坐标的命令");
+				sender.sendMessage("§c只有玩家可以使用不带具体坐标的命令");
 			}
 			
+			Util.sendSepratedLine(sender);			
 			return true;
 		case 5:
 			// telet add <标题Json文本> [x y z]
@@ -65,27 +91,25 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 								),
 						sender);
 			} else {
-				plugin.getLogger().info("§c只有玩家可以使用不带具体世界的命令");
+				sender.sendMessage("§c只有玩家可以使用不带具体世界的命令");
 			}
 			
+			Util.sendSepratedLine(sender);			
 			return true;
 		case 6:
 			// telet add <标题Json文本> [x y z] [世界]
-			World w = Bukkit.getWorld(args[5]);
-			if (w != null) {
-				addTitle(args[1], 
-						Util.getLocation(
-								Util.getWorld(args[5], sender), 
-								args[2], args[3], args[4], sender
-								),
-						sender);
-			} else {
-				plugin.getLogger().info("§c未找到名为§6" + args[5] + "§c的世界" );
-			}
-				
+			addTitle(args[1], 
+					Util.getLocation(
+							Util.getWorld(args[5], sender), 
+							args[2], args[3], args[4], sender
+							),
+					sender);
+			
+			Util.sendSepratedLine(sender);			
 			return true;
 		}
 		
+		Util.sendSepratedLine(sender);		
 		return false;
 	}
 	
@@ -129,46 +153,61 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	 * @return false将会显示usage
 	 */
 	private boolean runDel(CommandSender sender, String[] args) {
+		GoingToDel gtd = new GoingToDel();
+		
 		switch (args.length) {
 		case 1:
 			// telet del
 			if (sender instanceof Player) {
-				delTitles((Player) sender);
+				gtd.setLocation(((Player) sender).getLocation().getBlock().getLocation());
 			} else {
-				plugin.getLogger().info("只有玩家可以使用不带具体坐标的命令");
+				sender.sendMessage("§c只有玩家可以使用不带具体坐标的命令");
+				Util.sendSepratedLine(sender);
+				return true;
 			}
-			return true;
+			
+			break;			
 		case 4:
 			// telet del [x y z]
 			if (sender instanceof Player) {
-				delTitles(Util.getLocation(((Player) sender).getWorld(),
-						args[1], args[2], args[3], sender),
-						sender);
+				gtd.setLocation(
+						Util.getLocation(
+							((Player) sender).getWorld(),
+							args[1], args[2], args[3], sender
+						)
+					);
 			} else {
-				plugin.getLogger().info("只有玩家可以使用不带具体世界的命令");
+				sender.sendMessage("§c只有玩家可以使用不带具体世界的命令");
+				Util.sendSepratedLine(sender);
+				return true;
 			}
-			return true;
+			
+			break;			
 		case 5:
 			// telet del [x y z] [世界]
-				delTitles(
-						Util.getLocation(
-						Util.getWorld(args[4], sender),
-						args[1], args[2], args[3], sender
-						),
-						sender
-						);
-			return true;
+			gtd.setLocation(
+					Util.getLocation(
+							Util.getWorld(args[4], sender),
+							args[1], args[2], args[3], sender
+						)
+					);
+			
+			break;
+		default:
+			return false;
 		}
 		
-		return false;
-	}
-	
-	/**
-	 * 删除玩家所在位置的标题
-	 * @param p 指定玩家
-	 */
-	private void delTitles(Player p) {
-		delTitles(p.getLocation().getBlock().getLocation(), p);
+		gtd.setTime(System.currentTimeMillis() + 30000);
+		// 循环，如果该Sender之前有一个要确认的删除没有管，把那个删除删掉
+		Enumeration<CommandSender> e = goingToDels.keys();
+	    while(e.hasMoreElements()) {
+	    	if (e.nextElement() == sender) goingToDels.remove(sender);
+	    }
+		goingToDels.put(sender, gtd);
+		sender.sendMessage("§c请在 §630秒内 §c执行命令 §6/telet confirm §c确认删除位于" +
+				Util.locationToString(gtd.getLocation()) + " §c的§4§l所有§c传送标题");
+		Util.sendSepratedLine(sender);
+		return true;
 	}
 	
 	/**
@@ -208,28 +247,30 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private boolean runList(CommandSender sender, String[] args) {
 		switch (args.length) {
 		case 1:
-			sender.sendMessage("§7==============================");
 			// telet list
 			listTitles(sender);
-			sender.sendMessage("§7==============================");
+			
+			Util.sendSepratedLine(sender);			
 			return true;
 		case 2:
-			sender.sendMessage("§7==============================");
 			// telet list [世界]
 			listTitles(sender, Util.getWorld(args[1], sender));
-			sender.sendMessage("§7==============================");
+			
+			Util.sendSepratedLine(sender);			
 			return true;
 		case 5:
-			sender.sendMessage("§7==============================");
 			// telet list [世界] [x y z]
 			listTitles(sender, 
 					Util.getLocation(
 							Util.getWorld(args[1], sender),
 							args[2], args[3], args[4], sender)
 					);
-			sender.sendMessage("§7==============================");
+			
+			Util.sendSepratedLine(sender);			
 			return true;
-		}		
+		}
+		
+		Util.sendSepratedLine(sender);
 		return false;
 	}
 	

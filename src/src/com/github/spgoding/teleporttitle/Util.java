@@ -14,6 +14,14 @@ import org.bukkit.entity.Player;
 public class Util {
 	
 	/**
+	 * 发送分割线
+	 * @param sender 命令执行者
+	 */
+	public static void sendSepratedLine(CommandSender sender) {
+		sender.sendMessage("§7==============================");
+	}
+	
+	/**
 	 * 获取随机整数
 	 * @param min 最小值(包含)
 	 * @param max 最大值(包含)
@@ -48,7 +56,7 @@ public class Util {
 			if (isNumeric(x) && isNumeric(y) && isNumeric(z)) {
 				return new Location(world, Double.parseDouble(x), Double.parseDouble(y), Double.parseDouble(z));
 			} else {
-				sender.sendMessage("§6(" + x + ", " + y + ", " + z + ")" + "§c不是一个合法的坐标");
+				sender.sendMessage("§6(" + x + ", " + y + ", " + z + ") §c不是一个合法的坐标");
 			}
 		}
 		
@@ -61,7 +69,7 @@ public class Util {
 	 * @return 是true，否false
 	 */
 	public static boolean isNumeric(String str) {  
-	   for(int i = str.length(); i >= 0; i--){  
+	   for(int i = 0; i < str.length(); i++){  
 	    	 int chr = str.charAt(i);  
 	    	 if (chr < 48 || chr > 57) {	    		 
 	    		 return false;  
@@ -77,8 +85,8 @@ public class Util {
 	 * @return 形如(x, y, z) in world的字符串
 	 */
 	public static String locationToString(Location loc) {
-		return "§7世界 §6" + loc.getWorld().getName() + " §7中的 (§6" + Integer.toString(loc.getBlockX()) + "§7, §6" +
-				Integer.toString(loc.getBlockY()) + "§7, §6" +
+		return "§7(世界: §6" + loc.getWorld().getName() + " §7, x: §6" + Integer.toString(loc.getBlockX()) + "§7, y: §6" +
+				Integer.toString(loc.getBlockY()) + "§7, z: §6" +
 				Integer.toString(loc.getBlockZ()) + "§7)";
 	}
 	
