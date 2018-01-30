@@ -286,7 +286,7 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 					"§7:§b " + plugin.getJsons().get(i));
 			cnt++;
 		}
-		sender.sendMessage("§9服务器中共 §6" + Integer.toString(cnt) + "个 §9传送标题");
+		sender.sendMessage("§9服务器中共 §b" + Integer.toString(cnt) + "个 §9传送标题");
 	}
 	
 	/**
@@ -305,7 +305,7 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 					cnt++;
 				}
 			}
-			sender.sendMessage("§9世界 §6" + world.getName() + " §9中共 §6" +
+			sender.sendMessage("§b世界 §6" + world.getName() + " §9中共 §b" +
 			Integer.toString(cnt) + "个 §9传送标题");
 		}
 	}
@@ -325,7 +325,7 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 					cnt++;
 				}
 			}
-			sender.sendMessage("§9位置 §6" + Util.locationToString(loc) + " §9中共 §6" +
+			sender.sendMessage("§b位置 §6" + Util.locationToString(loc) + " §9中共 §b" +
 			Integer.toString(cnt) + "个 §9传送标题");
 		}
 	}

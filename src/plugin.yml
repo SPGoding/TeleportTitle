@@ -25,6 +25,13 @@ commands:
             §6/telet add <标题Json文本> <x y z> <世界> §7- §b在[世界]中的[x y z]位置添加指定的传送标题
         permission: teleporttitle.command
         permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+    telet confirm:
+        description: §bA Teleport Title provided command.
+        usage: |
+            
+            §6/telet confirm §7- §b确认删除, 仅在使用了命令 §6/telet del §b后可用
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
     telet del:
         description: §bA Teleport Title provided command.
         usage: |
