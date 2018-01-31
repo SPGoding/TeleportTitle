@@ -28,21 +28,15 @@ public class TeleportTitle extends JavaPlugin implements Listener {
 	public List<Location> getLocations() {
 		return locations;
 	}
-
 	public void setLocations(List<Location> locations) {
 		this.locations = locations;
-	}
-	
+	}	
 	public List<String> getJsons() {
 		return jsons;
 	}
-
 	public void setJsons(List<String> jsons) {
 		this.jsons = jsons;
 	}
-
-
-
 
 	/**
 	 * 插件加载时
@@ -71,7 +65,7 @@ public class TeleportTitle extends JavaPlugin implements Listener {
 	/**
 	 * 补全目录
 	 */
-	private void completeFiles() {
+	void completeFiles() {
 		if (!getDataFolder().exists()) {
 			getDataFolder().mkdir();
 		}
@@ -84,7 +78,7 @@ public class TeleportTitle extends JavaPlugin implements Listener {
 	/**
 	 * 读取配置文件
 	 */
-	private void readConfig() {
+	void readConfig() {
 		getJsons().clear();
 		getLocations().clear();
 		if (getConfig().contains("messages")){
@@ -117,22 +111,18 @@ public class TeleportTitle extends JavaPlugin implements Listener {
 	 * @param e 事件
 	 */
 	@EventHandler
-	public void sendTitle(PlayerTeleportEvent e){
+	public void sendTitle(PlayerTeleportEvent e) {
 		Player p = e.getPlayer();
 		Location toLoc = e.getTo();
 		List<String> msgs = new ArrayList<>();
 		for (int i = 0; i < getLocations().size(); i++) {
 			Location loc = getLocations().get(i);
-			if (loc.equals(toLoc)){
+			if (Util.locationToString(loc).equals(Util.locationToString(toLoc))) {
 				// 传送后坐标符合该条配置
 				
-				// 替换变量
-				String msg = getJsons().get(i)
-						.replaceAll("%PLAYER%", p.getName())
-						.replaceAll("%WORLD%", loc.getWorld().getName());
-				
 				// 将可发送的msg添加至msg
-				msgs.add(msg);
+				msgs.add(getJsons().get(i));
+
 			}
 		}
 		
@@ -164,7 +154,7 @@ public class TeleportTitle extends JavaPlugin implements Listener {
 	/**
 	 * 写入配置文件
 	 */
-	private void writeConfig() {
+	void writeConfig() {
 		List<String> messages = new ArrayList<>();
 		for (int i = 0; i < getLocations().size(); i++) {
 			// 把所有坐标和Json再次连起来并写入配置文件

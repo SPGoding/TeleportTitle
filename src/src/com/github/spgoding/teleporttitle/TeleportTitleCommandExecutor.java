@@ -14,6 +14,10 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private final TeleportTitle plugin;
 	private Hashtable<CommandSender, GoingToDel> goingToDels = new Hashtable<>();
 	
+	public TeleportTitle getPlugin() {
+		return plugin;
+	}
+
 	public TeleportTitleCommandExecutor(TeleportTitle plugin) {
 		this.plugin = plugin;
 	}
@@ -27,35 +31,25 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 		if (label.equalsIgnoreCase("telet") || label.equalsIgnoreCase("teleporttitle")) {
 			// 是劳资的命令
 			if (args.length > 0) {
-				if (args[0].equalsIgnoreCase("add")) {
-					// 劳资要加title
+				switch (args[0].toLowerCase()) {
+				case "add":
+					// 加title
 					return runAdd(sender, args);
-				} else if (args[0].equalsIgnoreCase("del")) {
+				case "confirm":
+					// 确认删除
+					return runConfirm(sender);
+				case "del":
 					// 删title
 					return runDel(sender, args);
-				} else if (args[0].equalsIgnoreCase("list")) {
+				case "list":
 					// 列title
 					return runList(sender, args);
-				} else if (args[0].equalsIgnoreCase("confirm")) {
-					// 确认删除
-					Enumeration<CommandSender> e = goingToDels.keys();
-				    while(e.hasMoreElements()) {
-				    	if (e.nextElement() == sender) {
-				    		// 这个是该sender要删的
-							if (System.currentTimeMillis() <= goingToDels.get(sender).getTime()) {
-								// 时间还Okay，可以删
-								delTitles(goingToDels.get(sender).getLocation(), sender);
-							} else {
-								sender.sendMessage("§c已经超过确认时间");
-							}
-							goingToDels.remove(sender);
-							Util.sendSepratedLine(sender);
-							return true;
-				    	}
-				    }
-					sender.sendMessage("§c还未使用过 §6/telet del §c命令");
-					Util.sendSepratedLine(sender);
-					return true;
+				case "reload":
+					// 重载配置文件
+					return runReload(sender);
+				case "save":
+					// 保存配置文件
+					return runSave(sender);
 				}
 			}
 		}
@@ -130,22 +124,51 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	 * @param sender 命令的执行者
 	 */
 	private void addTitle(String json, Location loc, CommandSender sender) {
-		if (loc != null) {			
+		if (loc != null) {
+			// 将 & 用作样式代码
+			json = json.replaceAll("&(?=0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|l|m|n|o|k|r)", "\u00A7");
 			// 添加
-			plugin.getJsons().add(json);
-			plugin.getLocations().add(loc);
+			getPlugin().getJsons().add(json);
+			getPlugin().getLocations().add(loc);
 			
 			// 显示消息
-			sender.sendMessage("§b已成功添加标题 §6" + json + "§b 到位置 §6" + 
+			sender.sendMessage("§b已成功添加标题 §r" + json + "§b 到位置 §6" + 
 			Util.locationToString(loc));
 			if (sender instanceof Player) {
 				Util.showTitleOnScreen(((Player) sender), json);
-				sender.sendMessage("§c如果您的屏幕上正确显示出了标题则表明无误！");
-				sender.sendMessage("§c否则请您检查标题Json的正确性");
+				sender.sendMessage("§b如果您的屏幕上正确显示出了标题则表明无误！");
+				sender.sendMessage("§b否则请您检查标题Json的正确性");
 			}
 		}
 	}
 
+	/**
+	 * 执行删除title的命令
+	 * @param sender 命令执行者
+	 * @return true
+	 */
+	private boolean runConfirm(CommandSender sender) {
+		// 确认删除
+		Enumeration<CommandSender> e = goingToDels.keys();
+	    while(e.hasMoreElements()) {
+	    	if (e.nextElement() == sender) {
+	    		// 这个是该sender要删的
+				if (System.currentTimeMillis() <= goingToDels.get(sender).getTime()) {
+					// 时间还Okay，可以删
+					delTitles(goingToDels.get(sender).getLocation(), sender);
+				} else {
+					sender.sendMessage("§c已经超过确认时间");
+				}
+				goingToDels.remove(sender);
+				Util.sendSepratedLine(sender);
+				return true;
+	    	}
+	    }
+		sender.sendMessage("§c还未使用过 §6/telet del §c命令");
+		Util.sendSepratedLine(sender);
+		return true;
+	}
+	
 	/**
 	 * 执行删Title的命令
 	 * @param sender 命令执行者
@@ -205,7 +228,7 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	    }
 		goingToDels.put(sender, gtd);
 		sender.sendMessage("§c请在 §630秒内 §c执行命令 §6/telet confirm §c确认删除位于" +
-				Util.locationToString(gtd.getLocation()) + " §c的§4§l所有§c传送标题");
+				Util.locationToString(gtd.getLocation()) + " §c的§l所有§c传送标题");
 		Util.sendSepratedLine(sender);
 		return true;
 	}
@@ -218,12 +241,12 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private void delTitles (Location loc, CommandSender sender) {
 		if (loc != null) {
 			int count = 0;
-			for (int i = 0; i < plugin.getLocations().size(); i++) {
-				Location item = plugin.getLocations().get(i);
-				if (item.equals(loc)) {
+			for (int i = 0; i < getPlugin().getLocations().size(); i++) {
+				Location item = getPlugin().getLocations().get(i);
+				if (Util.locationToString(loc).equals(Util.locationToString(item))) {
 					// 直接删除
-					plugin.getLocations().remove(i);
-					plugin.getJsons().remove(i);
+					getPlugin().getLocations().remove(i);
+					getPlugin().getJsons().remove(i);
 					i -= 1;
 					count++;
 				}
@@ -280,13 +303,13 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	 */
 	private void listTitles(CommandSender sender) {
 		int cnt = 0;
-		for (int i = 0; i < plugin.getLocations().size(); i++) {
+		for (int i = 0; i < getPlugin().getLocations().size(); i++) {
 			sender.sendMessage("§6" +
-					Util.locationToString(plugin.getLocations().get(i)) +
-					"§7:§b " + plugin.getJsons().get(i));
+					Util.locationToString(getPlugin().getLocations().get(i)) +
+					"§7:§r " + getPlugin().getJsons().get(i));
 			cnt++;
 		}
-		sender.sendMessage("§9服务器中共 §b" + Integer.toString(cnt) + "个 §9传送标题");
+		sender.sendMessage("§b服务器中共 §6" + Integer.toString(cnt) + "个 §b传送标题");
 	}
 	
 	/**
@@ -296,17 +319,17 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private void listTitles(CommandSender sender, World world) {
 		if (world != null){
 			int cnt = 0;
-			for (int i = 0; i < plugin.getLocations().size(); i++) {
-				Location iLoc = plugin.getLocations().get(i);
+			for (int i = 0; i < getPlugin().getLocations().size(); i++) {
+				Location iLoc = getPlugin().getLocations().get(i);
 				if (iLoc.getWorld() == world) {
 					sender.sendMessage(
-							"§6" + Util.locationToString(plugin.getLocations().get(i)) +
-							"§7:§b " + plugin.getJsons().get(i));
+							"§6" + Util.locationToString(getPlugin().getLocations().get(i)) +
+							"§7: §r" + getPlugin().getJsons().get(i));
 					cnt++;
 				}
 			}
-			sender.sendMessage("§b世界 §6" + world.getName() + " §9中共 §b" +
-			Integer.toString(cnt) + "个 §9传送标题");
+			sender.sendMessage("§b世界 §6" + world.getName() + " §b中共 §6" +
+			Integer.toString(cnt) + "个 §b传送标题");
 		}
 	}
 	
@@ -317,17 +340,43 @@ public class TeleportTitleCommandExecutor implements CommandExecutor {
 	private void listTitles(CommandSender sender, Location loc) {
 		if (loc != null) {
 			int cnt = 0;
-			for (int i = 0; i < plugin.getLocations().size(); i++) {
-				Location iLoc = plugin.getLocations().get(i);
-				if (loc.equals(iLoc)) {
-					sender.sendMessage("§6" + Util.locationToString(plugin.getLocations().get(i)) +
-							"§7:§b " + plugin.getJsons().get(i));
+			for (int i = 0; i < getPlugin().getLocations().size(); i++) {
+				Location iLoc = getPlugin().getLocations().get(i);
+				if (Util.locationToString(loc).equals(Util.locationToString(iLoc))) {
+					sender.sendMessage("§6" + Util.locationToString(getPlugin().getLocations().get(i)) +
+							"§7: §r" + getPlugin().getJsons().get(i));
 					cnt++;
 				}
 			}
-			sender.sendMessage("§b位置 §6" + Util.locationToString(loc) + " §9中共 §b" +
-			Integer.toString(cnt) + "个 §9传送标题");
+			sender.sendMessage("§b位置 §6" + Util.locationToString(loc) + " §b中共 §6" +
+			Integer.toString(cnt) + "个 §b传送标题");
 		}
 	}
 
+	/**
+	 * 执行重载配置文件的命令
+	 * @param sender 命令执行者
+	 * @return true
+	 */
+	private boolean runReload(CommandSender sender) {
+		getPlugin().completeFiles();
+		getPlugin().reloadConfig();
+		getPlugin().readConfig();
+		sender.sendMessage("§b已重新读取配置文件");
+		Util.sendSepratedLine(sender);
+		return true;
+	}
+	
+	/**
+	 * 执行保存配置文件的命令
+	 * @param sender 命令执行者
+	 * @return true
+	 */
+	private boolean runSave(CommandSender sender) {
+		getPlugin().writeConfig();
+		getPlugin().saveConfig();
+		sender.sendMessage("§b已保存配置文件");
+		Util.sendSepratedLine(sender);
+		return true;
+	}
 }

@@ -1,6 +1,6 @@
 name: TeleportTitle
 main: com.github.spgoding.teleporttitle.TeleportTitle
-version: 1.5
+version: 1.6
 author: SPGoding
 commands:
     telet:
@@ -14,6 +14,8 @@ commands:
             §6/telet del [x y z] [世界] §7- §b删除指定位置上的所有传送标题
             §6/telet confirm §7- §b确认, 仅在使用了命令 §6/telet del §b后可用
             §6/telet list [世界] [x y z] §7- §b列出指定位置上的所有传送标题
+            §6/telet reload §7- §b重新读取配置文件
+            §6/telet save §7- §b保存所有传送标题到配置文件
         permission: teleporttitle.command
         permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
     telet add:
@@ -34,6 +36,9 @@ commands:
         permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
     telet del:
         description: §bA Teleport Title provided command.
+        aliases: 
+            - telet delete
+            - telet remove
         usage: |
             
             §6/telet del §7- §b删除玩家所在位置上的传送标题
@@ -48,6 +53,21 @@ commands:
             §6/telet list §7- §b列出所有的传送标题
             §6/telet list <世界> §7- §b列出指定世界中的所有传送标题
             §6/telet list <世界> <x y z> §7- §b列出指定世界中指定坐标上所有传送标题
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+    telet reload:
+        description: §bA Teleport Title provided command.
+        aliases: [telet load]
+        usage: |
+            
+            §6/telet reload §7- §b重新读取配置文件
+        permission: teleporttitle.command
+        permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
+    telet save:
+        description: §bA Teleport Title provided command.
+        usage: |
+            
+            §6/telet save §7- §b保存所有传送标题到配置文件
         permission: teleporttitle.command
         permission-message: §7[§b传送标题§7]§c你没有权限使用此命令！
 permissions: 

@@ -56,7 +56,7 @@ public class Util {
 			if (isNumeric(x) && isNumeric(y) && isNumeric(z)) {
 				return new Location(world, Double.parseDouble(x), Double.parseDouble(y), Double.parseDouble(z));
 			} else {
-				sender.sendMessage("§6(" + x + ", " + y + ", " + z + ") §c不是一个合法的坐标");
+				sender.sendMessage("§7(§6" + x + "§7, §6" + y + "§7, §6" + z + "§7) §c不是一个合法的坐标");
 			}
 		}
 		
@@ -85,9 +85,13 @@ public class Util {
 	 * @return 形如(x, y, z) in world的字符串
 	 */
 	public static String locationToString(Location loc) {
-		return "§7(世界: §6" + loc.getWorld().getName() + " §7, x: §6" + Integer.toString(loc.getBlockX()) + "§7, y: §6" +
+		if (loc != null) {
+			return "§7(世界: §6" + loc.getWorld().getName() + "§7, x: §6" + Integer.toString(loc.getBlockX()) + "§7, y: §6" +
 				Integer.toString(loc.getBlockY()) + "§7, z: §6" +
 				Integer.toString(loc.getBlockZ()) + "§7)";
+		} else {
+			return "§c没有这个位置";
+		}
 	}
 	
 	/**
@@ -99,7 +103,8 @@ public class Util {
 		if (p.hasPermission("teleporttitle.showtitle")) {
 			Bukkit.getServer().dispatchCommand(
 					Bukkit.getConsoleSender(), 
-					"title " + p.getName() + " title " + json);
+					"title " + p.getName() + " title " + 
+					json.replaceAll("%player%", p.getName()));
 		}
 	}
 
